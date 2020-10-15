@@ -1,0 +1,3 @@
+[submodule "Troops-chaincode-test"]
+	path = Troops-chaincode-test
+	url = https://github.com/Appsnet/Troops-chaincode-test.git
