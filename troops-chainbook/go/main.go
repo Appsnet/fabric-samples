@@ -8,14 +8,13 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/logger"
 
 	"chainbook/conf"
-	"chainbook/fabric"
 )
 
 func main() {
 	os.Setenv("DISCOVERY_AS_LOCALHOST", "true")
 
 	// Connect to database
-	if err := fabric.GetContract(); err != nil {
+	if err := GetContract(); err != nil {
 		log.Fatal(err)
 	}
 
@@ -29,7 +28,6 @@ func main() {
 
 	app.Get("/policies/", GetAllPolicies)
 	app.Get("/policy/:policyno", GetPolicy)
-	app.Get("/create/", CreatePolicy)
 
 	log.Fatal(app.Listen(conf.Config("HTTP_PORT")))
 

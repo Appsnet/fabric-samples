@@ -5,9 +5,6 @@ import (
 	"fmt"
 
 	"github.com/gofiber/fiber/v2"
-
-	"chainbook/fabric"
-	"chainbook/models"
 )
 
 // GetAllCustomers from db
@@ -31,64 +28,11 @@ func GetCustomer(c *fiber.Ctx) error {
 	})
 }
 
-// CreatePolicy from db
-func CreatePolicy(c *fiber.Ctx) error {
-
-	result, err := fabric.Contract.SubmitTransaction("CreatePolicy",
-		"00001",
-		"OwnerChineseName",
-		"OwnerFirstName",
-		"OwnerLastName",
-		"OwnerDob",
-		"OwnerEmail",
-		"InsuredChineseName",
-		"InsuredFirstName",
-		"InsuredLastName",
-		"InsuredDob",
-		"InsuredEmail",
-		"ClientID",
-		"InsuranceCompanyName",
-		"ServiceName",
-		"ServiceTel",
-		"CoopName",
-		"CoopTel",
-		"SubmittedDate",
-		"PolicyDate",
-		"PaymentType",
-		"CurrencyType",
-		"0",
-		"0",
-		"0",
-		"0",
-		"ProductID",
-		"ProductName",
-		"Period",
-		"CoolingOffDate",
-		"FirstPremiumPaymentDay",
-		"ReceivePolicyDate",
-		"0",
-		"CreateTime",
-		"{}",
-	)
-	if err != nil {
-		return c.Status(500).JSON(&fiber.Map{
-			"success": false,
-			"error":   fmt.Sprintf("Failed to evaluate transaction: %s\n", err),
-		})
-	}
-
-	return c.JSON(&fiber.Map{
-		"success": true,
-		"result":  result,
-		"message": "all policies returned",
-	})
-}
-
 // GetAllPolicies from db
 func GetAllPolicies(c *fiber.Ctx) error {
-	var policies []models.Policy
+	var policies []Policy
 
-	result, err := fabric.Contract.EvaluateTransaction("GetAllPolicy")
+	result, err := Contract.EvaluateTransaction("GetAllPolicy")
 	if err != nil {
 		return c.Status(500).JSON(&fiber.Map{
 			"success": false,
@@ -110,9 +54,9 @@ func GetAllPolicies(c *fiber.Ctx) error {
 func GetPolicy(c *fiber.Ctx) error {
 	policyno := c.Params("policyno")
 
-	var policy models.Policy
+	var policy Policy
 
-	result, err := fabric.Contract.EvaluateTransaction("ReadPolicy", policyno)
+	result, err := Contract.EvaluateTransaction("ReadPolicy", policyno)
 	if err != nil {
 		return c.Status(500).JSON(&fiber.Map{
 			"success": false,

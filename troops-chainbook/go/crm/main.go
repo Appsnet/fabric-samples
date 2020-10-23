@@ -7,16 +7,74 @@ import (
 	"os"
 
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/hyperledger/fabric-sdk-go/pkg/gateway"
 
 	"chainbook/conf"
-	"chainbook/fabric"
-	"chainbook/models"
 )
 
-// CreatePolicy from db
-func CreatePolicy(policy models.Policy) {
+// ImportPublicPolicy from db
+func ImportPublicPolicy(contract *gateway.Contract, policy Policy) {
 
-	result, err := fabric.Contract.SubmitTransaction("CreatePolicy",
+	result, err := contract.SubmitTransaction("CreatePolicy",
+		policy.PolicyNo,
+		policy.OwnerDob,
+		policy.InsuredDob,
+		policy.InsuranceCompanyName,
+		policy.ServiceName,
+		policy.ServiceTel,
+		policy.CoopName,
+		policy.CoopTel,
+		policy.SubmittedDate,
+		policy.PolicyDate,
+		policy.PaymentType,
+		policy.CurrencyType,
+		fmt.Sprintf("%f", policy.AppPreMiumAmount),
+		fmt.Sprintf("%f", policy.PolicyAmount),
+		fmt.Sprintf("%f", policy.SumAssuredAmount),
+		fmt.Sprintf("%f", policy.RecdRemiumAmount),
+		policy.ProductID,
+		policy.ProductName,
+		policy.Period,
+		policy.CoolingOffDate,
+		policy.FirstPremiumPaymentDay,
+		policy.ReceivePolicyDate,
+		fmt.Sprintf("%d", policy.PolicyStatus),
+		policy.CreateTime,
+		policy.RiderProducts,
+	)
+	if err != nil {
+		log.Println(err)
+	}
+	log.Println(result)
+}
+
+// ImportCustomer from db
+func ImportCustomer(contract *gateway.Contract, policy Policy) {
+
+	result, err := contract.SubmitTransaction("CreatePolicy",
+		policy.PolicyNo,
+		policy.OwnerChineseName,
+		policy.OwnerFirstName,
+		policy.OwnerLastName,
+		policy.OwnerDob,
+		policy.OwnerEmail,
+		policy.InsuredChineseName,
+		policy.InsuredFirstName,
+		policy.InsuredLastName,
+		policy.InsuredDob,
+		policy.InsuredEmail,
+		policy.ClientID,
+	)
+	if err != nil {
+		log.Println(err)
+	}
+	log.Println(result)
+}
+
+// ImportPolicy from db
+func ImportPolicy(contract *gateway.Contract, policy Policy) {
+
+	result, err := contract.SubmitTransaction("CreatePolicy",
 		policy.PolicyNo,
 		policy.OwnerChineseName,
 		policy.OwnerFirstName,
@@ -60,6 +118,19 @@ func CreatePolicy(policy models.Policy) {
 
 //GetPolicyByPolicyNo query policy by policy number
 func GetPolicyByPolicyNo() error {
+
+	mychannelContract, err := GetContract("private-channel", "policy-private")
+	if err != nil {
+		log.Println(err)
+	}
+	publicContract, err := GetContract("public-channel", "policy-public")
+	if err != nil {
+		log.Println(err)
+	}
+	brokerContract, err := GetContract("broker-channel", "policy-broker")
+	if err != nil {
+		log.Println(err)
+	}
 
 	rows, err := conf.DB.Query(fmt.Sprintf(`SELECT
     IFNULL(T_POLICY.POLICY_NO, ''),
@@ -140,7 +211,7 @@ GROUP BY T_POLICY.POLICY_NO;`))
 	i := 1
 	for rows.Next() {
 
-		var policy models.Policy
+		var policy Policy
 
 		err = rows.Scan(
 			&policy.PolicyNo,
@@ -199,10 +270,10 @@ GROUP BY T_POLICY.POLICY_NO;`))
 			log.Println(err.Error())
 		}
 
-		var riderProducts []models.RiderProduct
+		var riderProducts []RiderProduct
 		defer productsRows.Close()
 		for productsRows.Next() {
-			var product models.RiderProduct
+			var product RiderProduct
 
 			err = productsRows.Scan(&product.PolicyID, &product.ProductID, &product.PolicyNo, &product.ProductName)
 			if err != nil {
@@ -223,9 +294,11 @@ GROUP BY T_POLICY.POLICY_NO;`))
 		}
 
 		if policy.PolicyNo != "" {
-			log.Println(i, policy.PolicyNo, policy.OwnerChineseName, policy.OwnerFirstName, policy.OwnerLastName)
+			log.Println(i, policy.PolicyNo, policy.OwnerChineseName, policy.OwnerFirstName, policy.OwnerLastName, policy.CurrencyType)
 			i++
-			CreatePolicy(policy)
+			ImportPolicy(mychannelContract, policy)
+			ImportCustomer(brokerContract, policy)
+			ImportPublicPolicy(publicContract, policy)
 		}
 	}
 	return nil
@@ -236,11 +309,6 @@ func main() {
 
 	// Connect to database
 	if err := conf.Connect(); err != nil {
-		log.Fatal(err)
-	}
-
-	// Connect to fabric
-	if err := fabric.GetContract(); err != nil {
 		log.Fatal(err)
 	}
 

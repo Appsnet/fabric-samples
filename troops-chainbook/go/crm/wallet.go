@@ -1,4 +1,4 @@
-package fabric
+package main
 
 import (
 	"errors"
@@ -12,7 +12,8 @@ import (
 )
 
 // GetContract return policy contract form wallet
-func GetContract() error {
+func GetContract(channel string, policy string) (*gateway.Contract, error) {
+	var err error
 
 	wallet, err := gateway.NewFileSystemWallet("wallet")
 	if err != nil {
@@ -29,6 +30,7 @@ func GetContract() error {
 	}
 
 	ccpPath := filepath.Join(
+		"..",
 		"..",
 		"..",
 		"troops-network",
@@ -48,21 +50,18 @@ func GetContract() error {
 	}
 	defer gw.Close()
 
-	network, err := gw.GetNetwork("mychannel")
+	network, err := gw.GetNetwork(channel)
 	if err != nil {
 		fmt.Printf("Failed to get network: %s\n", err)
 		os.Exit(1)
 	}
 
-	Contract = network.GetContract("policy")
-	return nil
+	return network.GetContract(policy), err
 }
-
-// Contract of policy
-var Contract *gateway.Contract
 
 func populateWallet(wallet *gateway.Wallet) error {
 	credPath := filepath.Join(
+		"..",
 		"..",
 		"..",
 		"troops-network",

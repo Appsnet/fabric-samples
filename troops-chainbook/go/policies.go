@@ -1,4 +1,4 @@
-package models
+package main
 
 // RiderProduct model
 type RiderProduct struct {

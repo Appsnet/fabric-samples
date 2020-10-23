@@ -54,6 +54,15 @@ if [ "$CC_SRC_PATH" = "NA" ]; then
   elif [ "$CC_NAME" = "policy" ]; then
     println $'\e[0;32m'asset-transfer-policy$'\e[0m' chaincode
     CC_SRC_PATH="../asset-transfer-policy"
+  elif [ "$CC_NAME" = "policy-broker" ]; then
+    println $'\e[0;32m'asset-transfer-policy-broker$'\e[0m' chaincode
+    CC_SRC_PATH="../asset-transfer-policy-broker"
+  elif [ "$CC_NAME" = "policy-public" ]; then
+    println $'\e[0;32m'asset-transfer-policy-public$'\e[0m' chaincode
+    CC_SRC_PATH="../asset-transfer-policy-public"
+  elif [ "$CC_NAME" = "policy-private" ]; then
+    println $'\e[0;32m'asset-transfer-policy-private$'\e[0m' chaincode
+    CC_SRC_PATH="../asset-transfer-policy-private"
   else
     fatalln "The chaincode name ${CC_NAME} is not supported by this script. Supported chaincode names are: basic, ledger, private, sbe, secured"
   fi
