@@ -1,3 +1,6 @@
 [submodule "Troops-chaincode-test"]
 	path = Troops-chaincode-test
 	url = https://github.com/Appsnet/Troops-chaincode-test.git
+[submodule "troops-chainbook/ui/dashboard"]
+	path = troops-chainbook/ui/dashboard
+	url = git@github.com:yoricktroops/chainbook-dashboard.git
